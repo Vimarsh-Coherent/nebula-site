@@ -1,26 +1,241 @@
 @import "tailwindcss";
 
+/* ============================================================
+   DESIGN TOKENS
+   CSS variables = the single source of truth for the palette.
+   They are mapped into Tailwind's theme below so you can use
+   utilities like `bg-background`, `text-muted`, `bg-accent`.
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050608; /* near-black canvas */
+  --surface: #0e1014; /* raised panels / cards */
+  --surface-2: #15181e; /* hover / nested surfaces */
+  --foreground: #f5f6f7; /* high-contrast text */
+  --muted: #8a8f98; /* secondary text / labels */
+  --border: rgba(245, 246, 247, 0.08);
+
+  --accent: #5b8cff; /* electric blue */
+  --accent-glow: #9d7bff; /* secondary violet glow */
+
+  /* 8px spacing scale is provided by Tailwind defaults (1 = 0.25rem). */
+  --container-max: 80rem; /* 1280px max content width */
+  --section-py: clamp(5rem, 12vh, 11rem); /* generous vertical rhythm */
 }
 
+/* Map tokens → Tailwind theme (v4 `@theme`). `inline` keeps the var refs live. */
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-glow: var(--accent-glow);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+
+  --container-3xl: var(--container-max);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   BASE
+   ============================================================ */
+* {
+  border-color: var(--border);
+}
+
+html {
+  /* Lenis drives scrolling; keep native smooth off to avoid conflicts. */
+  scroll-behavior: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  /* Prevent horizontal jitter from off-screen 3D / animated elements. */
+  overflow-x: hidden;
+}
+
+/* Lenis: disables the browser's own smooth-scroll while active. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Display type defaults: tight leading, slightly negative tracking. */
+.font-display {
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+
+::selection {
+  background: var(--accent);
+  color: #050608;
+}
+
+/* Thin custom scrollbar (Lenis still owns the motion). */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-2);
+  border-radius: 999px;
+}
+
+/* ============================================================
+   CINEMATIC OVERLAYS — film grain + soft vignette.
+   Rendered once in the layout, fixed above everything, non-interactive.
+   ============================================================ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  /* SVG fractal noise as a data URI — no asset request. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 0.6s steps(2) infinite;
+}
+
+@keyframes grain-shift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-2%, 1%);
+  }
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 120% at 50% 40%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* ============================================================
+   CUSTOM CURSOR — hidden on touch / fine-pointer-less devices.
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+  /* Hide native cursor only where our custom one runs. */
+  .has-custom-cursor,
+  .has-custom-cursor * {
+    cursor: none;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY — honor reduced motion globally.
+   Heavy/JS-driven motion is also gated in code via a hook.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .grain {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   BACKGROUND LOGO MARK — sits in the site-wide backdrop and
+   "opens up" on scroll. `--p` (0 → 1) is driven from JS; opacity
+   is set inline. Transforms stay on the compositor.
+   ============================================================ */
+.nebula-logo {
+  --p: 0;
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: min(86vmin, 760px);
+  height: min(86vmin, 760px);
+  color: var(--accent);
+  opacity: 0; /* JS-driven bloom envelope */
+  /* Winds open: scales up + rotates as it opens. */
+  transform: translate(-50%, -50%) rotate(calc(var(--p) * 48deg))
+    scale(calc(0.55 + var(--p) * 0.85));
+  /* Vertical aperture: closed to a central band at rest, full when open. */
+  clip-path: inset(calc((0.42 - var(--p) * 0.42) * 100%) 0%);
+  will-change: transform, clip-path, opacity;
+}
+.nebula-logo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.nebula-galaxy {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.nebula-word {
+  font-family: var(--font-display), sans-serif;
+  font-size: 17px;
+  fill: var(--foreground);
+  fill-opacity: 0.55;
+  text-transform: uppercase;
+  letter-spacing: calc(2px + var(--p) * 12px);
+}
+
+/* Slow, perpetual orbit drift — disabled under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .nebula-spin {
+    animation: nebula-spin 52s linear infinite;
+  }
+  .nebula-spin-rev {
+    animation: nebula-spin 68s linear infinite reverse;
+  }
+}
+@keyframes nebula-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Drifting hero glows. */
+@keyframes float {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-4%); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(6%) translateX(-3%); }
+}
+
+/* Infinite marquee track. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
 }
