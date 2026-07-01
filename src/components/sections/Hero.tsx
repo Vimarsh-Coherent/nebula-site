@@ -6,11 +6,11 @@ import Container from "@/components/ui/Container";
 import Label from "@/components/ui/Label";
 import MagneticButton from "@/components/ui/MagneticButton";
 import AnimatedText from "@/components/ui/AnimatedText";
-import HeroBlob from "@/components/visuals/HeroBlob";
+import AgentSwarm from "@/components/visuals/AgentSwarm";
 import { Notch, type NotchItem } from "@/components/ui/notch";
 import { motion } from "framer-motion";
 
-/** Notch color presets → the orb's two iridescence colors. */
+/** Notch color presets → the swarm's two flow colors. */
 const ORB_COLORS: Record<string, { a: string; b: string }> = {
   "#5b8cff": { a: "#5b8cff", b: "#9d7bff" }, // Blue (brand)
   "#9d7bff": { a: "#9d7bff", b: "#c084fc" }, // Violet
@@ -18,11 +18,11 @@ const ORB_COLORS: Record<string, { a: string; b: string }> = {
   "#f43f5e": { a: "#f43f5e", b: "#fb7185" }, // Rose
 };
 
-/** Notch energy presets → ripple amplitude + idle spin speed. */
+/** Notch energy presets → swarm flow strength + time-rate. */
 const ORB_ENERGY: Record<string, { amp: number; spin: number }> = {
-  calm: { amp: 0.18, spin: 0.03 },
-  balanced: { amp: 0.28, spin: 0.05 },
-  wild: { amp: 0.44, spin: 0.09 },
+  calm: { amp: 0.42, spin: 0.6 },
+  balanced: { amp: 0.65, spin: 1.0 },
+  wild: { amp: 1.05, spin: 1.6 },
 };
 
 /**
@@ -67,27 +67,28 @@ export default function Hero() {
       id="hero"
       className="relative flex min-h-svh items-center overflow-hidden pt-28"
     >
-      {/* Centerpiece (behind content): the 3D nebula orb over the site-wide storm.
-          A glow halo gives it depth; a left-side wash + vignette keep the
-          left-aligned headline crisp while the orb glows on the right. */}
+      {/* Centerpiece (behind content): the full-bleed GPU agent swarm over the
+          site-wide storm. A left-side wash + vignette keep the left-aligned
+          headline crisp while the swarm breathes across the viewport. */}
       <div aria-hidden className="absolute inset-0 overflow-hidden">
-        {/* Depth halo behind the orb */}
-        <div className="absolute right-[6%] top-1/2 h-[64vmin] w-[64vmin] -translate-y-1/2 rounded-full bg-accent/20 blur-[100px] animate-[float_16s_ease-in-out_infinite]" />
-        <div className="absolute right-[16%] top-[40%] h-[34vmin] w-[34vmin] rounded-full bg-accent-glow/20 blur-[80px] animate-[float2_20s_ease-in-out_infinite]" />
-
-        <HeroBlob
+        <AgentSwarm
           colorA={orb.a}
           colorB={orb.b}
           amp={motionPreset.amp}
           spin={motionPreset.spin}
         />
 
-        {/* Wash the headline side darker for contrast (desktop) */}
-        <div className="absolute inset-0 hidden bg-[linear-gradient(to_right,var(--background)_10%,transparent_62%)] md:block" />
+        {/* Wash the headline side darker for contrast (desktop): solid dark
+            across the left column, fading out past the headline. */}
+        <div className="absolute inset-0 hidden bg-[linear-gradient(to_right,var(--background)_0%,var(--background)_34%,transparent_70%)] md:block" />
+        {/* Tame the bright right edge so the swarm doesn't clip to white. */}
+        <div className="absolute inset-0 hidden bg-[linear-gradient(to_left,var(--background)_0%,transparent_22%)] md:block" />
+        {/* Top scrim keeps the nav legible over the swarm. */}
+        <div className="absolute inset-x-0 top-0 hidden h-32 bg-gradient-to-b from-background/90 to-transparent md:block" />
         {/* Mobile: stronger top-weighted scrim so the stacked headline stays legible */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/45 to-background/15 md:hidden" />
-        {/* Soft vignette weighted toward the orb */}
-        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_72%_45%,transparent_46%,var(--background)_94%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/40 to-background/10 md:hidden" />
+        {/* Soft vignette to settle the edges */}
+        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_70%_45%,transparent_46%,var(--background)_92%)]" />
       </div>
 
       <Container className="relative z-10">
@@ -96,7 +97,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <Label>{HERO.label}</Label>
+          <Label scramble>{HERO.label}</Label>
         </motion.div>
 
         {/* Headline reveals line-by-line */}
@@ -146,7 +147,7 @@ export default function Hero() {
         className="absolute bottom-8 right-6 hidden items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted md:flex lg:right-12"
       >
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-        Move your cursor — warp the orb
+        Move your cursor — bend the swarm
       </motion.div>
 
       {/* Live background control — retunes the orb in real time */}

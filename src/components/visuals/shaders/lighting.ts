@@ -149,11 +149,12 @@ export const fragmentShader = /* glsl */ `
     col += mix(uColorA, uColorB, 0.4) * smoothstep(0.55, 0.0, cd) * 0.10;
 
     // ---- lightning ----
-    // Flash envelope: per-interval random chance, sharp decay, a quick flicker.
+    // Flash envelope: per-interval random chance (rarer now), sharp decay, a
+    // quick flicker. Kept restrained so the hero never floods white.
     float ft   = t * 0.7;
     float idx  = floor(ft);
     float lt   = fract(ft);
-    float fl   = step(0.58, hash11(idx))
+    float fl   = step(0.74, hash11(idx))
                * exp(-lt * 8.0)
                * mix(0.5, 1.0, step(0.5, fract(lt * 6.0)));
 
@@ -169,11 +170,14 @@ export const fragmentShader = /* glsl */ `
                 + jag * (1.0 - yy * 0.25);
     float d     = abs(p.x - pathX);
     float inRng = step(tip.y, p.y) * step(p.y, topY);
-    float bolt  = (smoothstep(0.010, 0.0, d) + smoothstep(0.10, 0.0, d) * 0.5) * inRng;
+    // Thinner core + tighter, dimmer halo so the bolt reads as a filament,
+    // not a wide white band.
+    float bolt  = (smoothstep(0.006, 0.0, d) + smoothstep(0.05, 0.0, d) * 0.3) * inRng;
 
-    col += mix(vec3(0.85, 0.92, 1.0), uColorA, 0.25) * bolt * fl * 3.0;
-    // Whole-scene illumination from the flash (clouds light up).
-    col += mix(uColorA, vec3(1.0), 0.35) * fl * (0.18 + clouds * 0.25);
+    // Blue/violet bolt (not white) at a fraction of the old strength.
+    col += mix(uColorA, uColorB, 0.3) * bolt * fl * 1.3;
+    // Whole-scene illumination from the flash — subtle, never a white flood.
+    col += mix(uColorA, vec3(1.0), 0.18) * fl * (0.05 + clouds * 0.10);
 
     col *= uIntensity;
 

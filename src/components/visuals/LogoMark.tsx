@@ -3,10 +3,11 @@
 import { useEffect, useRef } from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 import { clamp, lerp } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 /**
- * Nebula brand mark living in the background: a glowing spiral galaxy (swirling
- * arms + scattered stars around a bright core) with the NEBULA wordmark beneath.
+ * Brand mark living in the background: a glowing spiral galaxy (swirling
+ * arms + scattered stars around a bright core) with the brand wordmark beneath.
  *
  * It "opens up" with scroll — a vertical aperture parts while the galaxy scales,
  * winds open (rotation) and its wordmark tracking spreads, then it dissolves as
@@ -143,7 +144,7 @@ export default function LogoMark({
 
         {/* Wordmark — tracking opens with scroll */}
         <text x="120" y="236" textAnchor="middle" className="nebula-word">
-          NEBULA
+          {BRAND.name.toUpperCase()}
         </text>
       </svg>
     </div>

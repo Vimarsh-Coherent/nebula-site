@@ -5,7 +5,7 @@ import LightingScene from "./LightingScene";
 import LogoMark from "./LogoMark";
 
 /**
- * The dynamic page backdrop: a cursor-lit WebGL field with the Nebula mark
+ * The dynamic page backdrop: a cursor-lit WebGL field with the brand mark
  * opening up over it as you scroll.
  *
  * Mounted once in the root layout, fixed and behind all content (`-z-10`,

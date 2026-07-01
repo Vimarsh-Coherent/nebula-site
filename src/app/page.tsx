@@ -1,6 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import Manifesto from "@/components/sections/Manifesto";
 import Services from "@/components/sections/Services";
+import AgentFlow from "@/components/sections/AgentFlow";
 import Process from "@/components/sections/Process";
 import Stats from "@/components/sections/Stats";
 import Work from "@/components/sections/Work";
@@ -21,6 +22,7 @@ export default function Home() {
         ]}
       />
       <Services />
+      <AgentFlow />
       <Process />
       <Stats />
       <Work />

@@ -4,15 +4,15 @@
  */
 
 export const BRAND = {
-  name: "Nebula",
+  name: "Orbit",
   // Short tagline used in nav / meta.
   tagline: "Idea to shipped product.",
   // Longer description used in <meta> and the footer.
   description:
-    "Nebula is an AI automation studio that helps small and non-technical businesses go from idea to shipped product — MVPs, solution architecture, AI automation, and team building.",
-  email: "hello@nebula.studio",
+    "Orbit is an AI automation studio that helps small and non-technical businesses go from idea to shipped product — MVPs, solution architecture, AI automation, and team building.",
+  email: "hello@orbit.studio",
   // Used for absolute URLs / OG. Replace with the real domain at launch.
-  url: "https://nebula.studio",
+  url: "https://orbit.studio",
   socials: [
     { label: "X / Twitter", href: "https://x.com" },
     { label: "LinkedIn", href: "https://linkedin.com" },

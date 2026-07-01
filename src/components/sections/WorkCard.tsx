@@ -3,21 +3,15 @@
 import Link from "next/link";
 import { useRef } from "react";
 import type { WorkItem } from "@/lib/content";
-import Parallax from "@/components/ui/Parallax";
-import { cn } from "@/lib/utils";
+import WorkCover from "@/components/visuals/WorkCover";
 
 /**
- * Work card with two trionn-style microinteractions:
+ * Work card. The cover is a live, generative animation per project (WorkCover)
+ * that spins up on hover. Two microinteractions on top:
  *  - a circular "View" badge that follows the cursor inside the card
- *  - a parallax cover that drifts as you scroll + zooms on hover
+ *  - a result-metric chip + title that shift to the accent on hover
  */
-export default function WorkCard({
-  item,
-  cover,
-}: {
-  item: WorkItem;
-  cover: string;
-}) {
+export default function WorkCard({ item }: { item: WorkItem }) {
   const badgeRef = useRef<HTMLSpanElement>(null);
   const frameRef = useRef<HTMLAnchorElement>(null);
 
@@ -38,19 +32,22 @@ export default function WorkCard({
       className="group block"
       aria-label={`${item.client} — ${item.title}`}
     >
-      <div className="relative aspect-[16/11] overflow-hidden rounded-2xl border border-border">
-        {/* Cover (taller than frame so parallax has room) */}
-        <Parallax speed={0.12} className="absolute -inset-y-[12%] inset-x-0">
-          <div
-            className={cn(
-              "h-full w-full bg-gradient-to-br transition-transform duration-700 ease-out group-hover:scale-105",
-              cover,
-            )}
-          />
-        </Parallax>
+      <div className="relative aspect-[16/11] overflow-hidden rounded-2xl border border-border transition-[border-color,transform] duration-500 group-hover:border-foreground/20">
+        {/* Live generative cover (subtle zoom on hover) */}
+        <WorkCover
+          variant={item.variant}
+          className="absolute inset-0 h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+        />
 
-        {/* Darkening on hover */}
-        <div className="absolute inset-0 bg-background/30 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        {/* Top edge: result metric chip */}
+        <div className="pointer-events-none absolute inset-x-4 top-4 flex items-center justify-between">
+          <span className="rounded-full border border-border bg-background/50 px-2.5 py-1 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-foreground/90 backdrop-blur-md">
+            {item.metric}
+          </span>
+          <span className="text-[0.7rem] uppercase tracking-[0.15em] text-muted">
+            {item.year}
+          </span>
+        </div>
 
         {/* Cursor-following View badge */}
         <span
@@ -71,7 +68,7 @@ export default function WorkCard({
           <p className="mt-1 text-sm text-muted">{item.client}</p>
         </div>
         <span className="shrink-0 text-xs uppercase tracking-[0.15em] text-muted">
-          {item.category} · {item.year}
+          {item.category}
         </span>
       </div>
     </Link>

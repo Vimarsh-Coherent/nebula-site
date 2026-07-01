@@ -8,7 +8,7 @@ export const HERO = {
   // Bold one-liner. Split across lines for the staggered reveal.
   headline: ["We turn ideas", "into shipped", "products."],
   subline:
-    "Nebula helps small and non-technical teams design, build, and automate real products — without needing a technical co-founder.",
+    "Orbit helps small and non-technical teams design, build, and automate real products — without needing a technical co-founder.",
   primaryCta: { label: "Start your MVP", href: "/contact" },
   secondaryCta: { label: "See our work", href: "/work" },
 } as const;
@@ -120,12 +120,19 @@ export const STATS: Stat[] = [
   { value: 98, suffix: "%", label: "Client retention" },
 ];
 
+/** Drives which live, generative cover animation a Work card renders. */
+export type WorkVariant = "routes" | "vitals" | "ledger" | "mesh";
+
 export type WorkItem = {
   id: string;
   client: string;
   title: string;
   category: string;
   year: string;
+  /** Generative cover motif (see WorkCover). */
+  variant: WorkVariant;
+  /** Headline outcome — shown on the card for the case-study feel. */
+  metric: string;
 };
 
 export const WORK: WorkItem[] = [
@@ -135,6 +142,8 @@ export const WORK: WorkItem[] = [
     title: "AI dispatch that books itself",
     category: "AI Automation",
     year: "2025",
+    variant: "routes",
+    metric: "−41% dispatch time",
   },
   {
     id: "bloom",
@@ -142,6 +151,8 @@ export const WORK: WorkItem[] = [
     title: "Patient intake MVP in 5 weeks",
     category: "MVP Build",
     year: "2025",
+    variant: "vitals",
+    metric: "5-week launch",
   },
   {
     id: "ledger",
@@ -149,6 +160,8 @@ export const WORK: WorkItem[] = [
     title: "Finance ops, fully automated",
     category: "AI Automation",
     year: "2024",
+    variant: "ledger",
+    metric: "12k hrs/yr saved",
   },
   {
     id: "verde",
@@ -156,8 +169,25 @@ export const WORK: WorkItem[] = [
     title: "Marketplace architecture rebuild",
     category: "Architecture",
     year: "2024",
+    variant: "mesh",
+    metric: "100× scale headroom",
   },
 ];
+
+export const AGENT_FLOW = {
+  label: "Agentic orchestration",
+  headline: "Your work, routed through a team of agents.",
+  subline:
+    "We don't bolt one chatbot onto your business. We design a network of specialized agents that hand work to each other — plan, research, build, review, ship — with a human in the loop wherever it counts.",
+  // Accessible description of the live graph below.
+  pipeline: [
+    "Intake captures the request",
+    "Planner breaks it into tasks",
+    "Researcher and Builder work in parallel",
+    "Reviewer checks the output",
+    "Deploy ships it — and feeds learnings back to the Planner",
+  ],
+} as const;
 
 export const CTA = {
   label: "Let's build",
