@@ -8,6 +8,7 @@ import { BRAND, NAV_LINKS } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import MagneticButton from "@/components/ui/MagneticButton";
 import RollText from "@/components/ui/RollText";
+import TextScramble from "@/components/ui/TextScramble";
 
 /**
  * Sticky top navigation. Transparent over the hero, then gains a blurred
@@ -52,7 +53,9 @@ export default function Nav() {
           aria-label={`${BRAND.name} — home`}
         >
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_16px_var(--accent)] transition-transform duration-300 group-hover:scale-125" />
-          {BRAND.name}
+          <TextScramble trigger="mount" scrambleOnHover speed={30}>
+            {BRAND.name}
+          </TextScramble>
         </Link>
 
         {/* Desktop links */}

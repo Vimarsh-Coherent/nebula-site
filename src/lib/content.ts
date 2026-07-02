@@ -8,7 +8,7 @@ export const HERO = {
   // Bold one-liner. Split across lines for the staggered reveal.
   headline: ["We turn ideas", "into shipped", "products."],
   subline:
-    "Orbit helps small and non-technical teams design, build, and automate real products — without needing a technical co-founder.",
+    "2minsproduction helps small and non-technical teams design, build, and automate real products — without needing a technical co-founder.",
   primaryCta: { label: "Start your MVP", href: "/contact" },
   secondaryCta: { label: "See our work", href: "/work" },
 } as const;

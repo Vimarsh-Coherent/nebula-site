@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 /**
  * TextScramble — a "decoding" reveal: the text resolves out of a stream of random
- * glyphs, left to right, when it first scrolls into view. On-brand texture for an
- * AI/automation studio without being noisy (best on short eyebrow labels / short
- * headings).
+ * glyphs, left to right. On-brand texture for an AI/automation studio without
+ * being noisy (best on short eyebrow labels / headings / the wordmark).
+ *
+ * Triggers:
+ *   - "view"  → decodes once when it first scrolls into view (default).
+ *   - "mount" → decodes immediately on mount (good for always-visible wordmarks).
+ * `scrambleOnHover` re-runs the decode each time the element is hovered.
  *
  * Reduced-motion → renders the final text immediately, no animation.
  */
@@ -20,33 +24,36 @@ export default function TextScramble({
   as: Tag = "span",
   /** ms per character to fully resolve. */
   speed = 38,
+  /** When to first run the decode. */
+  trigger = "view",
+  /** Re-run the decode whenever the element is hovered. */
+  scrambleOnHover = false,
 }: {
   children: string;
   className?: string;
   as?: React.ElementType;
   speed?: number;
+  trigger?: "view" | "mount";
+  scrambleOnHover?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = usePrefersReducedMotion();
   const [text, setText] = useState(children);
+  const rafRef = useRef(0);
 
-  useEffect(() => {
+  // Run one left-to-right decode of `children`, returns a cleanup canceller.
+  const run = useCallback(() => {
     if (reduced) {
       setText(children);
       return;
     }
-    const el = ref.current;
-    if (!el) return;
-
     const target = children;
-    let raf = 0;
-    let started = false;
-    let startTime = 0;
+    cancelAnimationFrame(rafRef.current);
+    const startTime = performance.now();
 
     const tick = (now: number) => {
-      const elapsed = now - startTime;
       // How many characters have resolved so far.
-      const resolved = elapsed / speed;
+      const resolved = (now - startTime) / speed;
       let out = "";
       let done = true;
       for (let i = 0; i < target.length; i++) {
@@ -63,16 +70,31 @@ export default function TextScramble({
         }
       }
       setText(out);
-      if (!done) raf = requestAnimationFrame(tick);
+      if (!done) rafRef.current = requestAnimationFrame(tick);
       else setText(target);
     };
+    rafRef.current = requestAnimationFrame(tick);
+  }, [children, reduced, speed]);
 
+  useEffect(() => {
+    if (reduced) {
+      setText(children);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+
+    if (trigger === "mount") {
+      run();
+      return () => cancelAnimationFrame(rafRef.current);
+    }
+
+    let started = false;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !started) {
           started = true;
-          startTime = performance.now();
-          raf = requestAnimationFrame(tick);
+          run();
           io.disconnect();
         }
       },
@@ -82,12 +104,17 @@ export default function TextScramble({
 
     return () => {
       io.disconnect();
-      if (raf) cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafRef.current);
     };
-  }, [children, reduced, speed]);
+  }, [children, reduced, trigger, run]);
 
   return (
-    <Tag ref={ref} className={cn(className)} aria-label={children}>
+    <Tag
+      ref={ref}
+      className={cn(className)}
+      aria-label={children}
+      onPointerEnter={scrambleOnHover ? run : undefined}
+    >
       <span aria-hidden>{text}</span>
     </Tag>
   );

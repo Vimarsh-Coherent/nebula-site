@@ -7,15 +7,6 @@ import Reveal from "@/components/ui/Reveal";
 import Tilt from "@/components/ui/Tilt";
 import WorkCard from "@/components/sections/WorkCard";
 
-// Gradient "covers" stand in for case-study imagery — swap for real <Image> later.
-// Kept within the cool blue/violet brand range so the grid reads as one family.
-const COVERS = [
-  "from-[#1b2a55] to-[#5b8cff]", // blue
-  "from-[#2a1b55] to-[#9d7bff]", // violet
-  "from-[#102a3a] to-[#22d3ee]", // cyan
-  "from-[#2b1040] to-[#e879f9]", // magenta
-];
-
 /** Work — case-study grid with image hover reveals. Placeholder content for now. */
 export default function Work() {
   return (
@@ -50,7 +41,7 @@ export default function Work() {
           {WORK.map((item, i) => (
             <Reveal key={item.id} delay={(i % 2) * 0.08}>
               <Tilt max={4}>
-                <WorkCard item={item} cover={COVERS[i % COVERS.length]} />
+                <WorkCard item={item} />
               </Tilt>
             </Reveal>
           ))}
